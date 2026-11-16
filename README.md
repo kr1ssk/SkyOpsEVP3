@@ -11,6 +11,7 @@ Frontend: https://github.com/kr1ssk/SkyOpsEP3
 - **prod**: MySQL. Es la base que pide el Anexo 1. Variables de entorno (todas opcionales, los valores por defecto
   sirven para un MySQL local como XAMPP, con `root` sin clave): `DB_HOST` (localhost), `DB_NAME` (skyops),
   `DB_USER` (root), `DB_PASSWORD` (vacía) y `CORS_ORIGIN` (`http://localhost:5173`). La base y las tablas se crean solas.
+  Además **`JWT_SECRET` es obligatoria** en este perfil (mínimo 32 caracteres, sin valor por defecto).
 
 ## Cómo ejecutarlo
 

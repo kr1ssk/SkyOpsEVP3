@@ -3,3 +3,8 @@ data/
 .idea/
 .vscode/
 *.iml
+
+# Secretos: nunca al repositorio
+.env
+.env.*
+!.env.example

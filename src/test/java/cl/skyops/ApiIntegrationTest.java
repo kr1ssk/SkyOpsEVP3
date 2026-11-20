@@ -23,7 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 /**
  * Pruebas de integración: levantan toda la app y llaman a la API como lo haría el frontend.
- * Usan la base H2 en memoria del perfil por defecto, así corren sin tener MySQL instalado.
+ * Corren sobre H2 en memoria (src/test/resources/application.properties), sin necesitar MySQL.
  */
 @SpringBootTest
 @AutoConfigureMockMvc

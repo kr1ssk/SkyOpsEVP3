@@ -32,14 +32,13 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // API sin cookies de sesión: no aplica CSRF
                 .cors(Customizer.withDefaults()) // usa la configuración de CorsConfig
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .headers(h -> h.frameOptions(f -> f.sameOrigin())) // necesario para la consola H2
                 .exceptionHandling(e -> e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .authorizeHttpRequests(a -> a
                         // Público: sin token
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/productos/**", "/api/v1/categorias/**", "/api/v1/flota").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/contactos").permitAll()
-                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/h2-console/**").permitAll()
+                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         // Tomcat reenvía los errores (como el 403) a /error; sin esto un 403 salía como 401
                         .requestMatchers("/error").permitAll()
 

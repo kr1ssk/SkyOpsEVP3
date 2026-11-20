@@ -37,11 +37,11 @@
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <!-- H2: base en memoria del perfil por defecto y de las pruebas -->
+        <!-- H2: solo para los tests automatizados. No se empaqueta en el jar. -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>runtime</scope>
+            <scope>test</scope>
         </dependency>
         <!-- Validaciones (@NotBlank, @Size, ...) -->
         <dependency>

@@ -117,7 +117,12 @@ sudo nginx -t && sudo systemctl reload nginx
 ```bash
 curl -s -o /dev/null -w "frontend: %{http_code}\n" http://localhost/
 curl -s -o /dev/null -w "api:      %{http_code}\n" http://localhost/api/v1/productos
+curl -s http://localhost/actuator/health
 ```
+
+El ultimo tiene que responder `{"status":"UP"}`. Ese es el endpoint que mira el balanceador:
+incluye el estado de la base, asi que UP significa que la instancia puede atender de verdad,
+no solo que el proceso Java esta vivo.
 
 Las dos tienen que dar 200. Despues, en el navegador: `http://LA_IP/`
 Swagger queda en `http://LA_IP/swagger-ui.html`.
@@ -129,7 +134,7 @@ journalctl -u skyops -f                   # logs en vivo
 
 for i in $(seq 1 8); do                   # los 8 pings del heartbeat
   printf "ping %d: " "$i"
-  curl -s -o /dev/null -w "HTTP %{http_code}  %{time_total}s\n" http://localhost/api/v1/productos
+  curl -s -o /dev/null -w "HTTP %{http_code}  %{time_total}s\n" http://localhost/actuator/health
   sleep 1
 done
 
@@ -144,7 +149,8 @@ vive dentro de la misma instancia, asi que una segunda EC2 tendria su propia bas
 1. Mover la base a **RDS**. Es cambiar `DB_HOST` en `/etc/skyops.env`, ninguna linea de
    Java. El backend ya es stateless por el JWT, asi que la base era el ultimo estado que
    quedaba dentro de la instancia.
-2. Crear una **AMI** y poner un **Application Load Balancer** delante.
+2. Crear una **AMI** y poner un **Application Load Balancer** delante, apuntando su
+   health check a `/actuator/health`. El ALB termina TLS, asi aparece HTTPS sin tocar el backend.
 3. Un **Auto Scaling Group** con minimo 2 instancias en zonas distintas.
 
 El orden importa: hasta que la base este afuera, agregar instancias crea inconsistencia

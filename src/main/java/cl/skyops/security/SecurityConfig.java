@@ -39,6 +39,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/productos/**", "/api/v1/categorias/**", "/api/v1/flota").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/contactos").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        // Chequeo de salud del balanceador: tiene que responder sin token,
+                        // o el ALB marcaria la instancia como caida y la sacaria de rotacion
+                        .requestMatchers("/actuator/health").permitAll()
                         // Tomcat reenvía los errores (como el 403) a /error; sin esto un 403 salía como 401
                         .requestMatchers("/error").permitAll()
 

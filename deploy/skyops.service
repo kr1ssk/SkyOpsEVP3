@@ -1,0 +1,32 @@
+# Servicio systemd del backend SkyOps.
+#
+# Hace que la API arranque sola con la maquina y se reinicie si se cae: sin esto,
+# cerrar la sesion SSH mata el proceso y la demo se apaga.
+#
+#   sudo cp deploy/skyops.service /etc/systemd/system/skyops.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now skyops
+#   journalctl -u skyops -f
+
+[Unit]
+Description=SkyOps API (Spring Boot)
+After=network-online.target mysql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/opt/skyops
+
+# Los secretos viven aqui, fuera del repositorio y con permisos 600
+EnvironmentFile=/etc/skyops.env
+
+ExecStart=/usr/bin/java -Xmx512m -jar /opt/skyops/app.jar --spring.profiles.active=prod
+
+Restart=always
+RestartSec=5
+# Spring Boot termina con 143 cuando recibe SIGTERM: no es un error
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target

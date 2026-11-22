@@ -3,33 +3,51 @@
 API REST de SkyOps (plataforma de abastecimiento de repuestos aeronáuticos). Proyecto de Desarrollo Fullstack II, Duoc UC.
 Frontend: https://github.com/kr1ssk/SkyOpsEP3
 
-**Stack:** Java 17+, Spring Boot 3.5, Spring Data JPA, MySQL (H2 por defecto), Spring Security con JWT (jjwt), Swagger (springdoc).
+**Stack:** Java 17+, Spring Boot 3.5, Spring Data JPA, MySQL para desarrollo y producción, H2 solo para pruebas, Spring Security con JWT (jjwt) y Swagger (springdoc).
 
 ## Perfiles
 
-- **default**: base H2 en memoria, corre sin instalar nada (los datos se pierden al apagar y se vuelven a cargar al arrancar).
-- **prod**: MySQL. Es la base que pide el Anexo 1. Variables de entorno (todas opcionales, los valores por defecto
-  sirven para un MySQL local como XAMPP, con `root` sin clave): `DB_HOST` (localhost), `DB_NAME` (skyops),
-  `DB_USER` (root), `DB_PASSWORD` (vacía) y `CORS_ORIGIN` (`http://localhost:5173`). La base y las tablas se crean solas.
-  Además **`JWT_SECRET` es obligatoria** en este perfil (mínimo 32 caracteres, sin valor por defecto).
+- **default (desarrollo)**: MySQL local, base `skyops_dev`. Si no existe, se crea automáticamente. Configuración:
+  `DB_HOST` (localhost), `DB_NAME` (skyops_dev), `DB_USER` (root), `DB_PASSWORD` (vacía por defecto) y
+  `CORS_ORIGIN` (`http://localhost:5173`). Ajusta la contraseña a la de tu instalación de MySQL.
+- **test**: H2 en memoria, configurada en `src/test/resources/application.properties`. Las pruebas no necesitan MySQL.
+- **prod**: MySQL, base `skyops`. Acepta las mismas variables de conexión; además **`JWT_SECRET` es obligatoria**
+  y debe tener al menos 32 caracteres. No tiene valor por defecto en este perfil.
 
 ## Cómo ejecutarlo
 
-Necesitas un JDK 17 o superior. Desde esta carpeta:
+Necesitas JDK 17 o superior y un servidor MySQL iniciado. El perfil predeterminado **no usa H2**. En Windows, desde PowerShell:
 
-```bash
-./mvnw spring-boot:run                                      # perfil default (H2)
-./mvnw spring-boot:run -Dspring-boot.run.profiles=prod      # MySQL
-./mvnw test                                                 # pruebas de integración
+```powershell
+$env:DB_HOST = "localhost"
+$env:DB_NAME = "skyops_dev"
+$env:DB_USER = "root"
+$env:DB_PASSWORD = "tu_clave_de_MySQL"
+.\mvnw.cmd spring-boot:run
 ```
 
-En Windows usa `mvnw.cmd`. Si tu MySQL tiene clave, defínela antes de arrancar (PowerShell): `$env:DB_PASSWORD = "tu_clave"`.
+En macOS o Linux puedes ejecutar `./mvnw spring-boot:run` y exportar antes las mismas variables. Si MySQL permite a `root` conectarse sin contraseña, deja `DB_PASSWORD` vacía. Spring crea `skyops_dev` y las tablas al iniciar.
+
+Para ejecutar pruebas (usan H2 en memoria y no requieren MySQL):
+
+```powershell
+.\mvnw.cmd clean verify
+```
+
+Para arrancar el perfil de producción en local, define también `JWT_SECRET` (mínimo 32 caracteres) y activa el perfil:
+
+```powershell
+$env:SPRING_PROFILES_ACTIVE = "prod"
+$env:DB_NAME = "skyops"
+$env:JWT_SECRET = "reemplaza-por-un-secreto-aleatorio-de-al-menos-32-caracteres"
+.\mvnw.cmd spring-boot:run
+```
 
 | Qué | Dirección |
 | --- | --- |
 | API | http://localhost:8080/api/v1 |
 | Swagger | http://localhost:8080/swagger-ui.html |
-| Consola H2 (solo perfil default) | http://localhost:8080/h2-console (JDBC URL `jdbc:h2:mem:skyops`, usuario `sa`, sin clave) |
+| Consola H2 | Solo se configura para pruebas; no está disponible al ejecutar la aplicación normalmente. |
 
 En el primer arranque se cargan datos de demostración: 3 categorías, 3 productos, 4 aeronaves y 3 cuentas, todas con
 la clave `Skyops123`:
@@ -190,3 +208,4 @@ Ejemplo de `POST /api/v1/boletas` (el frontend manda solo ids y cantidades; los 
 `src/test/java/cl/skyops/ApiIntegrationTest.java` levanta la aplicación completa (con H2 en memoria, así no
 depende de MySQL) y llama a la API real: login, 401/403 por rol (admin, vendedor, cliente), CRUD de productos,
 renovación de tokens, CORS y compra con control de stock.
+

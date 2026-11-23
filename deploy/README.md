@@ -1,5 +1,10 @@
 # Despliegue de SkyOps en AWS EC2
 
+Esta guía conserva el despliegue que ya está preparado para AWS: backend como JAR con systemd y frontend estático
+servido por nginx. Para desarrollo local con Docker, usa el Dockerfile de cada repositorio y el docker-compose.yml
+de la raíz del backend; ese Compose levanta MySQL, la API y la interfaz en conjunto, como el entorno de ejemplo
+del curso. No necesitas cambiar el despliegue AWS para usar Docker localmente.
+
 Todo corre en **una sola instancia t2.micro**: MySQL, el backend y nginx sirviendo el
 frontend. Un solo origen, una sola URL.
 

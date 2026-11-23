@@ -16,6 +16,37 @@ Frontend: https://github.com/kr1ssk/SkyOpsEP3
 
 ## Cómo ejecutarlo
 
+### Con Docker Compose (recomendado para levantar el stack completo)
+
+Clona ambos repositorios en una misma carpeta, uno al lado del otro:
+
+    git clone https://github.com/kr1ssk/SkyOpsEVP3 skyops-backend
+    git clone https://github.com/kr1ssk/SkyOpsEP3 skyops-frontend
+    cd skyops-backend
+    Copy-Item .env.example .env
+    docker compose up --build
+
+En Linux o macOS, usa cp .env.example .env en vez de Copy-Item.
+
+La primera ejecución compila las imágenes y puede tardar unos minutos. Luego:
+
+| Servicio | Dirección |
+| --- | --- |
+| Frontend SkyOps | http://localhost:3000 |
+| API REST | http://localhost:8080/api/v1 |
+| Swagger | http://localhost:8080/swagger-ui.html |
+| Salud de la API | http://localhost:8080/actuator/health |
+
+La base MySQL 8.4 queda en un volumen persistente; no es necesario instalar MySQL en el PC.
+El perfil prod del backend usa MySQL. H2 conserva scope test y solo se utiliza en pruebas automatizadas.
+Detén el stack con Ctrl+C; para iniciarlo en segundo plano usa docker compose up --build -d y detenlo con
+docker compose down. docker compose down -v también borra la base de datos persistida.
+
+El archivo .env.example trae claves de demostración exclusivamente locales. Para producción genera un JWT_SECRET
+aleatorio y nunca publiques el archivo .env.
+
+### Ejecución directa (sin Docker)
+
 Necesitas JDK 17 o superior y un servidor MySQL iniciado. El perfil predeterminado **no usa H2**. En Windows, desde PowerShell:
 
 ```powershell
@@ -208,4 +239,3 @@ Ejemplo de `POST /api/v1/boletas` (el frontend manda solo ids y cantidades; los 
 `src/test/java/cl/skyops/ApiIntegrationTest.java` levanta la aplicación completa (con H2 en memoria, así no
 depende de MySQL) y llama a la API real: login, 401/403 por rol (admin, vendedor, cliente), CRUD de productos,
 renovación de tokens, CORS y compra con control de stock.
-
